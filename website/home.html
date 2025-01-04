@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS and Azure Credentials</title>
+    <style>
+        /* General styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Main split layout */
+        main {
+            display: flex;
+            height: 100vh; /* Full height */
+            border-left: 1px solid #ccc; /* Vertical line */
+            border-right: 1px solid #ccc;
+        }
+
+        .split {
+            width: 50%;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        /* Left side (AWS) */
+        .left {
+            text-align: center;
+            border-right: 1px solid #ccc; /* Vertical line between sections */
+        }
+
+        .left header {
+            background-color: orange;
+            color: white;
+            padding: 20px 0;
+        }
+
+        /* Right side (Azure) */
+        .right {
+            text-align: center;
+        }
+
+        .right header {
+            background-color: blue;
+            color: white;
+            padding: 20px 0;
+        }
+
+        /* Form box styles */
+        table {
+            width: 60%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-spacing: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Button */
+        .start-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: green;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: darkgreen;
+        }
+
+    </style>
+</head>
+<body>
+    <main>
+        <!-- AWS Section -->
+        <div class="split left">
+            <header>
+                <h1>AWS</h1>
+            </header>
+            <table>
+                <tr>
+                    <td><label for="aws-user">AWS Username:</label></td>
+                    <td><input type="text" id="aws-user" placeholder="Enter AWS username"></td>
+                </tr>
+                <tr>
+                    <td><label for="aws-pass">AWS Password:</label></td>
+                    <td><input type="password" id="aws-pass" placeholder="Enter AWS password"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Azure Section -->
+        <div class="split right">
+            <header>
+                <h1>Azure</h1>
+            </header>
+            <table>
+                <tr>
+                    <td><label for="azure-user">Azure Username:</label></td>
+                    <td><input type="text" id="azure-user" placeholder="Enter Azure username"></td>
+                </tr>
+                <tr>
+                    <td><label for="azure-pass">Azure Password:</label></td>
+                    <td><input type="password" id="azure-pass" placeholder="Enter Azure password"></td>
+                </tr>
+            </table>
+        </div>
+    </main>
+
+    <button class="start-btn" onclick="generateShellScript()">Save Credentials</button>
+
+    <script>
+        function generateShellScript() {
+            // Get the input values for AWS and Azure
+            const awsUsername = document.getElementById("aws-user").value;
+            const awsPassword = document.getElementById("aws-pass").value;
+            const azureUsername = document.getElementById("azure-user").value;
+            const azurePassword = document.getElementById("azure-pass").value;
+    
+            // Create the shell script content
+            const shellScriptContent = `#!/bin/bash
+    
+    # AWS credentials
+    export AWS_USERNAME="${awsUsername}"
+    export AWS_PASSWORD="${awsPassword}"
+    
+    # Azure credentials
+    export AZURE_USERNAME="${azureUsername}"
+    export AZURE_PASSWORD="${azurePassword}"
+    
+    echo "AWS and Azure credentials have been set!"
+    `;
+    
+            // Send the shell script to the backend to save it as a .sh file
+            fetch('http://localhost:3000/save-credentials', {  // Make sure the port is correct
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    scriptContent: shellScriptContent
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Shell script saved successfully!");
+            })
+            .catch(error => {
+                alert("Error saving the script.");
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    
+</body>
+</html>
