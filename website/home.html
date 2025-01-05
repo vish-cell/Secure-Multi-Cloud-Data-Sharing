@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS and Azure Credentials</title>
+    <title>AWS and Azure Split</title>
     <style>
         /* General styles */
         body, html {
@@ -94,67 +94,40 @@
 </head>
 <body>
     <main>
-        <!-- AWS Section -->
         <div class="split left">
-            <header>
-                <h1>AWS</h1>
-            </header>
+            <header><h1>AWS</h1></header>
             <table>
-                <tr>
-                    <td><label for="aws-user">AWS Username:</label></td>
-                    <td><input type="text" id="aws-user" placeholder="Enter AWS username"></td>
-                </tr>
-                <tr>
-                    <td><label for="aws-pass">AWS Password:</label></td>
-                    <td><input type="password" id="aws-pass" placeholder="Enter AWS password"></td>
-                </tr>
+                <tr><td><label for="aws-user">Username:</label></td><td><input type="text" id="aws-user"></td></tr>
+                <tr><td><label for="aws-pass">Password:</label></td><td><input type="password" id="aws-pass"></td></tr>
             </table>
         </div>
 
-        <!-- Azure Section -->
         <div class="split right">
-            <header>
-                <h1>Azure</h1>
-            </header>
+            <header><h1>Azure</h1></header>
             <table>
-                <tr>
-                    <td><label for="azure-user">Azure Username:</label></td>
-                    <td><input type="text" id="azure-user" placeholder="Enter Azure username"></td>
-                </tr>
-                <tr>
-                    <td><label for="azure-pass">Azure Password:</label></td>
-                    <td><input type="password" id="azure-pass" placeholder="Enter Azure password"></td>
-                </tr>
+                <tr><td><label for="azure-user">Username:</label></td><td><input type="text" id="azure-user"></td></tr>
+                <tr><td><label for="azure-pass">Password:</label></td><td><input type="password" id="azure-pass"></td></tr>
             </table>
         </div>
     </main>
 
-    <button class="start-btn" onclick="generateShellScript()">Save Credentials</button>
+    <button class="start-btn" onclick="generateShellScript()">Start</button>
 
     <script>
         function generateShellScript() {
-            // Get the input values for AWS and Azure
             const awsUsername = document.getElementById("aws-user").value;
             const awsPassword = document.getElementById("aws-pass").value;
             const azureUsername = document.getElementById("azure-user").value;
             const azurePassword = document.getElementById("azure-pass").value;
-    
-            // Create the shell script content
+
             const shellScriptContent = `#!/bin/bash
-    
-    # AWS credentials
-    export AWS_USERNAME="${awsUsername}"
-    export AWS_PASSWORD="${awsPassword}"
-    
-    # Azure credentials
-    export AZURE_USERNAME="${azureUsername}"
-    export AZURE_PASSWORD="${azurePassword}"
-    
-    echo "AWS and Azure credentials have been set!"
-    `;
-    
-            // Send the shell script to the backend to save it as a .sh file
-            fetch('http://localhost:3000/save-credentials', {  // Make sure the port is correct
+export AWS_USERNAME="${awsUsername}"
+export AWS_PASSWORD="${awsPassword}"
+export AZURE_USERNAME="${azureUsername}"
+export AZURE_PASSWORD="${azurePassword}"
+echo "AWS and Azure credentials have been set!"`;
+
+            fetch('http://localhost:3000/save-credentials', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -165,7 +138,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert("Shell script saved successfully!");
+                // Correcting the redirection path
+                window.location.href = 'page2.html'; // Ensure this path is correct based on your folder structure
             })
             .catch(error => {
                 alert("Error saving the script.");
@@ -173,6 +147,5 @@
             });
         }
     </script>
-    
 </body>
 </html>

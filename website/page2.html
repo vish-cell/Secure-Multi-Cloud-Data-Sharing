@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption Key Management</title>
+    <style>
+        body {
+            font-family: "Amazon Ember", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+        .header {
+            background-color: #232f3e;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #232f3e;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .explanation {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+        button {
+            background-color: #0073bb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        .content.hidden {
+            display: none;
+        }
+        .upload-container {
+            margin-top: 20px;
+        }
+        .upload-container label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .upload-container input {
+            margin-bottom: 15px;
+        }
+        .option-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .option-buttons button {
+            background-color: #f58536;
+            padding: 8px 16px;
+        }
+        .option-buttons button:hover {
+            background-color: #d46e23;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">AWS Encryption Key Management</div>
+    <div class="container">
+        <h1>Encryption Key Management</h1>
+        
+        <!-- Explanation Section -->
+        <div class="explanation">
+            <p><strong>Custom Keys:</strong> You can upload your own custom encryption keys for a more personalized security setup.</p>
+            <p><strong>Managed Keys:</strong> Managed encryption keys are automatically created and securely stored. Choose this option for a hassle-free key management solution.</p>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="showContent('custom')">Custom Keys</button>
+            <button onclick="showContent('managed')">Managed Keys</button>
+        </div>
+
+        <!-- Content for Custom Keys -->
+        <div class="content" id="custom">
+            <h3>Custom Key Options</h3>
+            <p>You can upload your own custom encryption keys for enhanced control and security.</p>
+            <div class="upload-container">
+                <label for="aws_privatekey">AWS Private Key:</label>
+                <input type="file" id="aws_privatekey" accept=".pem">
+
+                <label for="aws_publickey">AWS Public Key:</label>
+                <input type="file" id="aws_publickey" accept=".pem">
+
+                <label for="azure_privatekey">Azure Private Key:</label>
+                <input type="file" id="azure_privatekey" accept=".pem">
+
+                <label for="azure_publickey">Azure Public Key:</label>
+                <input type="file" id="azure_publickey" accept=".pem">
+            </div>
+            <div class="option-buttons">
+                <button onclick="submitCustomKeys()">Submit Custom Keys</button>
+                <button onclick="resetCustomKeys()">Reset</button>
+            </div>
+        </div>
+
+        <!-- Content for Managed Keys -->
+        <div class="content hidden" id="managed">
+            <h3>Managed Key Options</h3>
+            <p>Managed encryption keys are automatically created and securely stored. Select the region where the keys should be managed:</p>
+            <select id="regionSelect">
+                <option value="us-east-1">US East (N. Virginia)</option>
+                <option value="us-west-2">US West (Oregon)</option>
+                <option value="eu-central-1">EU (Frankfurt)</option>
+                <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+            </select>
+            <div class="option-buttons">
+                <button onclick="generateManagedKeys()">Generate Managed Keys</button>
+                <button onclick="resetManagedKeys()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showContent(type) {
+            // Hide all content divs
+            document.querySelectorAll('.content').forEach(content => content.classList.add('hidden'));
+
+            // Show the selected content
+            document.getElementById(type).classList.remove('hidden');
+        }
+
+        async function submitCustomKeys() {
+            // Get file input elements
+            const awsPrivateKey = document.getElementById("aws_privatekey").files[0];
+            const awsPublicKey = document.getElementById("aws_publickey").files[0];
+            const azurePrivateKey = document.getElementById("azure_privatekey").files[0];
+            const azurePublicKey = document.getElementById("azure_publickey").files[0];
+
+            // Check if all files are selected
+            if (!awsPrivateKey || !awsPublicKey || !azurePrivateKey || !azurePublicKey) {
+                alert("Please select all files before submitting.");
+                return;
+            }
+
+            // Create FormData object to send files
+            const formData = new FormData();
+            formData.append("aws_privatekey", awsPrivateKey);
+            formData.append("aws_publickey", awsPublicKey);
+            formData.append("azure_privatekey", azurePrivateKey);
+            formData.append("azure_publickey", azurePublicKey);
+
+            try {
+                // Send the files to the server (using POST request)
+                const response = await fetch('http://localhost:4000/upload-keys', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Custom keys submitted successfully!");
+                } else {
+                    alert("Error submitting custom keys. Please try again.");
+                }
+            } catch (error) {
+                alert("An error occurred while uploading custom keys.");
+            }
+        }
+
+        function resetCustomKeys() {
+            document.getElementById("aws_privatekey").value = "";
+            document.getElementById("aws_publickey").value = "";
+            document.getElementById("azure_privatekey").value = "";
+            document.getElementById("azure_publickey").value = "";
+            alert("Custom keys reset successfully!");
+        }
+
+        function generateManagedKeys() {
+            const region = document.getElementById("regionSelect").value;
+            alert(`Managed keys generated successfully for region: ${region}`);
+        }
+
+        function resetManagedKeys() {
+            alert("Managed keys reset successfully!");
+        }
+    </script>
+</body>
+</html>

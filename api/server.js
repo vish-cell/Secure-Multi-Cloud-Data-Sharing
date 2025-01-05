@@ -14,7 +14,7 @@ app.use(express.json());
 // Route to save the shell script to the secrets directory
 app.post('/save-credentials', (req, res) => {
     const { scriptContent } = req.body;
-    const filePath = path.join(__dirname, 'secrets', 'console_credentials.sh');
+    const filePath = path.join(__dirname, '..', 'secrets', 'console_credentials.sh'); // Adjust path
 
     // Ensure the 'secrets' directory exists
     if (!fs.existsSync(path.dirname(filePath))) {
